@@ -1,0 +1,8 @@
+CREATE TABLE images (
+    id SERIAL PRIMARY KEY,
+    filename VARCHAR(255) NOT NULL,
+    filepath VARCHAR(255) NOT NULL,
+    mimetype VARCHAR(255) NOT NULL,
+    size INTEGER NOT NULL,
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
