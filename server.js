@@ -1,13 +1,16 @@
-const express = require("express");
+const { uploadDir } = require("./config/multer.config");
 const dotenv = require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT;
+const port = process.env.PORT;
 
-app.get("/api", (req, res) => {
-  res.status(200).json({ message: "Hello, world" });
-});
+app.use(express.json());
+app.use(cors());
+app.use("/uploads", express.static(uploadDir));
+app.use("/api", require("./routes/routes"));
 
-app.listen(PORT, () => {
-  console.log("App is running");
+app.listen(port, () => {
+  console.log(`Serveur démarré sur http://localhost:${port}`);
 });
