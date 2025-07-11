@@ -48,11 +48,38 @@ module.exports.createUser = (req, res) => {
       "INSERT INTO USER_APP(USERNAME, PASSWORD, DESCRIPTION, ADDRESS, CITY, CONTACT, EMAIL) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
       [username, password, description, address, city, contact, email]
     );
+    RESULT.then((result) => {
+      return res.status(200).json({
+        message: "Request completed successfully - User is created",
+        message_color: SUCCESS,
+        content: result.rows[0],
+      });
+    });
+    res.end();
+  } catch (err) {
+    console.error("Erreur DB:", err);
+    res.status(500).json({
+      message: "Internal Server Error",
+      message_color: ERROR,
+      details: err.message,
+    });
+  }
+};
 
-    res.status(200).json({
-      message: "Request completed successfully - User is created",
-      message_color: SUCCESS,
-      content: RESULT.rows[0],
+module.exports.getAllUser = (req, res) => {
+  try {
+    const RESULT = pool.query("SELECT * FROM USER_APP ORDER BY ID");
+    RESULT.then((result) => {
+      res.status(200).json({
+        message: "All users is found",
+        message_color: SUCCESS,
+        content: result.rows[0],
+      });
+    }).catch((err) => {
+      res.status(404).json({
+        message: "User not found",
+        message_color: WARNING,
+      });
     });
   } catch (err) {
     console.error("Erreur DB:", err);
