@@ -9,9 +9,9 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-pool.on('error', (err, client) => {
-    console.error('Erreur inattendue sur le client DB', err);
-    process.exit(-1);
+pool.on("error", (err, client) => {
+  console.error("Erreur inattendue sur le client DB", err);
+  process.exit(-1);
 });
 
 module.exports = pool;
