@@ -3,7 +3,7 @@ const pool = require("../config/db");
 // GET - Toutes les images de plages
 exports.getAllImages = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM Plage_image");
+    const result = await pool.query("SELECT * FROM Images");
     res.status(200).json(result.rows);
   } catch (err) {
     console.error("Erreur DB:", err);
@@ -21,7 +21,7 @@ exports.getImagesById = async (req, res) => {
 
   try {
     const result = await pool.query(
-      "SELECT * FROM Plage_image WHERE PlageID = $1",
+      "SELECT * FROM Images WHERE PlageID = $1",
       [plageId]
     );
     res.status(200).json(result.rows);
