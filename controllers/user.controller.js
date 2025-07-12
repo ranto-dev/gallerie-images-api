@@ -173,6 +173,21 @@ module.exports.updateUserById = (req, res) => {
   );
 
   try {
+    const CHECK = pool.query("SELECT * FROM USER_APP WHERE ID=$1", [id]);
+
+    CHECK.then((result) => {
+      if (!result.rows[0] || result.rows[0].length <= 0) {
+        return res.status(404).json({
+          message: `User at ID: ${id} is not found`,
+          message_color: WARNING,
+        });
+      }
+    }).catch((err) => {
+      res.status(400).json({
+        message: `Bad request`,
+        message_color: WARNING,
+      });
+    });
     const RESULT = pool.query(
       `UPDATE USER_APP SET ${request_body} WHERE ID=$${
         keys.length + 1
@@ -192,6 +207,43 @@ module.exports.updateUserById = (req, res) => {
         message: "User not updated",
         message: WARNING,
         details: err.message,
+      });
+    });
+  } catch (err) {
+    console.error("Server Error: " + err);
+    res.status(500).json({
+      message: "Internal Server Error",
+      message_color: ERROR,
+      details: err.message,
+    });
+  }
+};
+
+module.exports.deleteUserById = (req, res) => {
+  const { id } = req.params;
+
+  if (!id || isNaN(id)) {
+    return res
+      .status(404)
+      .json({ message: "ID is not found", message_color: WARNING });
+  }
+
+  try {
+    const RESULT = pool.query("DELETE FROM USER_APP WHERE ID=$1 RETURNING *", [
+      id,
+    ]);
+
+    RESULT.then((result) => {
+      res.status(200).json({
+        message: "User is deleted",
+        message_color: SUCCESS,
+        content: result.rows,
+      });
+    }).catch((err) => {
+      console.error(err);
+      res.status(400).json({
+        message: `Bad resquest - User at ID: ${id} is not found`,
+        message_color: WARNING,
       });
     });
   } catch (err) {
