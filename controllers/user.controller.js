@@ -54,10 +54,16 @@ module.exports.createUser = (req, res) => {
         message_color: SUCCESS,
         content: result.rows[0],
       });
+    }).catch((err) => {
+      console.error(err);
+      res.status(404).json({
+        message: "User not found",
+        message: WARNING,
+        details: err.message,
+      });
     });
-    res.end();
   } catch (err) {
-    console.error("Erreur DB:", err);
+    console.error("Server Error:", err);
     res.status(500).json({
       message: "Internal Server Error",
       message_color: ERROR,
@@ -76,13 +82,50 @@ module.exports.getAllUser = (req, res) => {
         content: result.rows[0],
       });
     }).catch((err) => {
+      console.error(err);
       res.status(404).json({
-        message: "User not found",
-        message_color: WARNING,
+        message: "User list not found",
+        message: WARNING,
+        details: err.message,
       });
     });
   } catch (err) {
-    console.error("Erreur DB:", err);
+    console.error("Server Error:", err);
+    res.status(500).json({
+      message: "Internal Server Error",
+      message_color: ERROR,
+      details: err.message,
+    });
+  }
+};
+
+module.exports.getUserById = (req, res) => {
+  const { id } = req.params;
+
+  if (!id || isNaN(id)) {
+    return res
+      .status(404)
+      .json({ message: "ID is not found", message_color: WARNING });
+  }
+
+  try {
+    const RESULT = pool.query("SELECT * FROM USER_APP WHERE ID=$1", [id]);
+    RESULT.then((result) => {
+      res.status(200).json({
+        message: `User at ID: ${id} is found`,
+        message_color: SUCCESS,
+        content: result.rows[0],
+      });
+    }).catch((err) => {
+      console.error(err);
+      res.status(404).json({
+        message: "User not found",
+        message: WARNING,
+        details: err.message,
+      });
+    });
+  } catch (err) {
+    console.error("Server Error: " + err);
     res.status(500).json({
       message: "Internal Server Error",
       message_color: ERROR,
