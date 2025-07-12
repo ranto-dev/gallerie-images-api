@@ -79,7 +79,7 @@ module.exports.getAllUser = (req, res) => {
       res.status(200).json({
         message: "All users is found",
         message_color: SUCCESS,
-        content: result.rows[0],
+        content: result.rows,
       });
     }).catch((err) => {
       console.error(err);
@@ -120,6 +120,76 @@ module.exports.getUserById = (req, res) => {
       console.error(err);
       res.status(404).json({
         message: "User not found",
+        message: WARNING,
+        details: err.message,
+      });
+    });
+  } catch (err) {
+    console.error("Server Error: " + err);
+    res.status(500).json({
+      message: "Internal Server Error",
+      message_color: ERROR,
+      details: err.message,
+    });
+  }
+};
+
+module.exports.updateUserById = (req, res) => {
+  const { id } = req.params;
+
+  if (!id || isNaN(id)) {
+    return res
+      .status(404)
+      .json({ message: "ID not found", message_color: WARNING });
+  }
+
+  const keys = Object.keys(req.body);
+  const values = Object.values(req.body);
+
+  if (!keys || keys.length <= 0) {
+    return res.status(404).json({
+      message: "Data to updated is not found",
+      message_color: WARNING,
+    });
+  }
+
+  let request_body = "";
+
+  for (let count = 0; count < keys.length; count++) {
+    const key = keys[count];
+    request_body += `${key.toUpperCase()}=$${count + 1},`;
+  }
+
+  request_body = request_body.trim();
+
+  if (request_body.endsWith(",")) {
+    request_body = request_body.slice(0, -1);
+  }
+
+  values.push(id);
+
+  console.log(
+    `Req: ${request_body}, ID: ${keys.length + 1}, values: ${values}`
+  );
+
+  try {
+    const RESULT = pool.query(
+      `UPDATE USER_APP SET ${request_body} WHERE ID=$${
+        keys.length + 1
+      } RETURNING *`,
+      values
+    );
+
+    RESULT.then((result) => {
+      res.status(200).json({
+        message: "User is updated",
+        message_color: SUCCESS,
+        content: result.rows,
+      });
+    }).catch((err) => {
+      console.error(err);
+      res.status(404).json({
+        message: "User not updated",
         message: WARNING,
         details: err.message,
       });
